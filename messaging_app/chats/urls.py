@@ -3,7 +3,7 @@ from django.urls import path, include
 from .views import ConversationViewSet, MessageViewSet
 
 # Base router
-router = DefaultRouter()
+router.DefaultRouter()
 router.register(r'conversations', ConversationViewSet, basename='conversation')
 
 # Nested router for messages under conversations
