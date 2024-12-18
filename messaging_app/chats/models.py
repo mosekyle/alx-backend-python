@@ -8,10 +8,12 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     role = models.CharField(max_length=10, choices=[('guest', 'Guest'), ('host', 'Host'), ('admin', 'Admin')], default='guest')
     
-    # The email and password fields are already included in AbstractUser, so they don't need to be redefined explicitly.
-    # If you want to make email unique, you can set the email field as unique.
-    email = models.EmailField(unique=True)
+    # These fields are already included in AbstractUser, but you can explicitly add them if required.
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     
+    email = models.EmailField(unique=True)
+
     def __str__(self):
         return self.email
 
