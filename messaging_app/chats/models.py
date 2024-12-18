@@ -7,7 +7,7 @@ class User(AbstractUser):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     role = models.CharField(max_length=10, choices=[('guest', 'Guest'), ('host', 'Host'), ('admin', 'Admin')], default='guest')
-    
+    password = models.CharField(max_length=128)
     # These fields are already included in AbstractUser, but you can explicitly add them if required.
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
