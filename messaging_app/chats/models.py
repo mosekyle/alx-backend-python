@@ -4,21 +4,16 @@ from django.contrib.auth.models import AbstractUser
 
 # User Model
 class User(AbstractUser):
-    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-    role_choices = [
-        ('guest', 'Guest'),
-        ('host', 'Host'),
-        ('admin', 'Admin')
-    ]
-    role = models.CharField(max_length=5, choices=role_choices, default='guest')
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    role = models.CharField(max_length=10, choices=[('guest', 'Guest'), ('host', 'Host'), ('admin', 'Admin')], default='guest')
     
-    # Optionally, add additional fields
-    # first_name = models.CharField(max_length=255)
-    # last_name = models.CharField(max_length=255)
-
+    # The email and password fields are already included in AbstractUser, so they don't need to be redefined explicitly.
+    # If you want to make email unique, you can set the email field as unique.
+    email = models.EmailField(unique=True)
+    
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.email
 
 # Conversation Model
 class Conversation(models.Model):
