@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 
 def message_history(request, message_id):
     message = get_object_or_404(Message, pk=message_id)
@@ -69,4 +70,8 @@ def unread_messages_view(request):
     # Use the custom manager and optimize with .only()
     unread_messages = Message.unread.for_user(request.user).only('id', 'sender', 'content', 'timestamp')
     return render(request, 'messaging/unread_messages.html', {'unread_messages': unread_messages})
-
+@cache_page(60)  # Cache for 60 seconds
+def message_list_view(request):
+    # Retrieve all messages for the logged-in user
+    messages = Message.objects.filter(receiver=request.user)
+    return render(request, 'chats/message_list.html', {'messages': messages})
