@@ -24,3 +24,26 @@ def threaded_conversation_view(request, message_id):
     root_message = Message.objects.prefetch_related('replies').select_related('sender', 'receiver').get(id=message_id)
     thread = root_message.get_thread()
     return render(request, 'threaded_conversation.html', {'thread': thread})
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from messaging.models import Message
+from messaging.forms import MessageForm
+
+@login_required
+def create_message(request):
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user  # Automatically set the sender to the logged-in user
+            message.save()
+            return redirect('inbox')  # Redirect to inbox or another appropriate page
+    else:
+        form = MessageForm()
+    return render(request, 'create_message.html', {'form': form})
+@login_required
+def inbox_view(request):
+    messages = Message.objects.filter(receiver=request.user).select_related('sender', 'receiver')
+    return render(request, 'inbox.html', {'messages': messages})
+
