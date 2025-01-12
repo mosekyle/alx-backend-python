@@ -3,8 +3,7 @@ from .models import Message, Notification, MessageHistory
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('sender', 'receiver', 'timestamp')
-
+    list_display = ('sender', 'receiver', 'timestamp', 'edited', 'edited_by')
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'message', 'created_at', 'is_read')
