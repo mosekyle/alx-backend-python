@@ -44,7 +44,4 @@ class MessageHistory(models.Model):
 
     def __str__(self):
         return f"History for Message ID {self.message.id}"
-class UnreadMessagesManager(models.Manager):
-    def for_user(self, user):
-        return self.filter(receiver=user, read=False).only('id', 'sender', 'content', 'timestamp')
 
