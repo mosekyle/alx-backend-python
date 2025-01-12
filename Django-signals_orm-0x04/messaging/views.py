@@ -46,4 +46,9 @@ def create_message(request):
 def inbox_view(request):
     messages = Message.objects.filter(receiver=request.user).select_related('sender', 'receiver')
     return render(request, 'inbox.html', {'messages': messages})
+@login_required
+def sent_messages_view(request):
+    # Retrieve messages sent by the logged-in user
+    sent_messages = Message.objects.filter(sender=request.user).select_related('receiver')
+    return render(request, 'sent_messages.html', {'messages': sent_messages})
 
