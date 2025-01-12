@@ -25,3 +25,15 @@ class MessageEditTests(TestCase):
         self.assertEqual(history.count(), 1)
         self.assertEqual(history.first().old_content, "Initial content")
         self.assertTrue(self.message.edited)
+
+class UnreadMessagesManagerTests(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='password')
+        self.user2 = User.objects.create_user(username='user2', password='password')
+        Message.objects.create(sender=self.user1, receiver=self.user2, content="Hello!", read=False)
+        Message.objects.create(sender=self.user1, receiver=self.user2, content="Hi again!", read=True)
+
+    def test_unread_messages_for_user(self):
+        unread_messages = Message.unread.for_user(self.user2)
+        self.assertEqual(unread_messages.count(), 1)
+        self.assertEqual(unread_messages.first().content, "Hello!")

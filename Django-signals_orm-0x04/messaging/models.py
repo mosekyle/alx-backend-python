@@ -8,6 +8,9 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
     edited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='edited_messages')  # Tracks who edited the messagefrom django.db import models
+    read = models.BooleanField(default=False)  # Field to indicate if the message has been read
+    objects = models.Manager()  # Default manager
+    unread = UnreadMessagesManager()  # Custom manager for unread messages
     parent_message = models.ForeignKey(
         'self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE
     )
@@ -41,4 +44,7 @@ class MessageHistory(models.Model):
 
     def __str__(self):
         return f"History for Message ID {self.message.id}"
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return self.filter(receiver=user, read=False).only('id', 'sender', 'content', 'timestamp')
 
