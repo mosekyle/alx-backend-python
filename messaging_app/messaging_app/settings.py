@@ -32,12 +32,18 @@ AUTH_USER_MODEL = 'chats.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # For token-based authentication
-        'rest_framework.authentication.SessionAuthentication',  # For session-based authentication
+        'rest_framework.authentication.SessionAuthentication',# For session-based authentication
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # Only authenticated users can post
     ],
+    
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
+
 
 # Application definition
 
