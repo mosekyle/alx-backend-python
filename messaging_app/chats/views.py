@@ -5,6 +5,7 @@ from .serializers import ConversationSerializer, MessageSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsParticipantOfConversation
 from django_filters.rest_framework import DjangoFilterBackend
+from .filters import MessageFilter
 
 
 
