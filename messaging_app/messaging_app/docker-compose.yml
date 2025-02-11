@@ -13,6 +13,7 @@ services:
       - DATABASE_NAME=${MYSQL_DB}
       - DATABASE_USER=${MYSQL_USER}
       - DATABASE_PASSWORD=${MYSQL_PASSWORD}
+    command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
 
