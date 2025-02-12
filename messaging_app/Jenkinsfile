@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        VIRTUAL_ENV = '.venv'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git credentialsId: 'your-github-credentials-id', url: 'https://github.com/your-username/alx-backend-python.git', branch: 'main'
+            }
+        }
+
+        stage('Set Up Python') {
+            steps {
+                sh 'python3 -m venv $VIRTUAL_ENV'
+                sh 'source $VIRTUAL_ENV/bin/activate && pip install -r messaging_app/requirements.txt'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'source $VIRTUAL_ENV/bin/activate && pytest --junitxml=report.xml'
+            }
+        }
+
+        stage('Archive Test Reports') {
+            steps {
+                archiveArtifacts artifacts: 'report.xml', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            junit 'report.xml'
+        }
+    }
+}
+
