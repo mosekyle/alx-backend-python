@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Checkout the code from GitHub using credentialsId and specify branch
-                git credentialsId: 'github-credentials', url: 'https://github.com/mosekyle/alx-backend-python.git', branch: 'main'
+                git credentialsId: 'github-credentials', url: 'https://github.com/mosekyle/alx-backend-python.git', git branch: 'main'
             }
         }
 
