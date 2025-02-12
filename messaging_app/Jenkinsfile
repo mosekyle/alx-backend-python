@@ -2,39 +2,58 @@ pipeline {
     agent any
 
     environment {
-        VIRTUAL_ENV = '.venv'
+        DOCKER_IMAGE = 'your-dockerhub-username/messaging-app'
+        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
-                git credentialsId: 'your-github-credentials-id', url: 'https://github.com/your-username/alx-backend-python.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/yourusername/alx-backend-python.git'
             }
         }
 
-        stage('Set Up Python') {
+        stage('Build Docker Image') {
             steps {
-                sh 'python3 -m venv $VIRTUAL_ENV'
-                sh 'source $VIRTUAL_ENV/bin/activate && pip install -r messaging_app/requirements.txt'
+                script {
+                    sh 'docker build -t $DOCKER_IMAGE:$BUILD_NUMBER ./messaging_app'
+                }
             }
         }
 
-        stage('Run Tests') {
+        stage('Login to Docker Hub') {
             steps {
-                sh 'source $VIRTUAL_ENV/bin/activate && pytest --junitxml=report.xml'
+                script {
+                    withCredentials([usernamePassword(credentialsId: "$DOCKER_CREDENTIALS_ID", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    }
+                }
             }
         }
 
-        stage('Archive Test Reports') {
+        stage('Push Docker Image') {
             steps {
-                archiveArtifacts artifacts: 'report.xml', fingerprint: true
+                script {
+                    sh 'docker push $DOCKER_IMAGE:$BUILD_NUMBER'
+                    sh 'docker tag $DOCKER_IMAGE:$BUILD_NUMBER $DOCKER_IMAGE:latest'
+                    sh 'docker push $DOCKER_IMAGE:latest'
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                sh 'docker rmi $DOCKER_IMAGE:$BUILD_NUMBER'
             }
         }
     }
 
     post {
-        always {
-            junit 'report.xml'
+        success {
+            echo 'Docker image successfully built and pushed!'
+        }
+        failure {
+            echo 'Build failed! Check logs for errors.'
         }
     }
 }
