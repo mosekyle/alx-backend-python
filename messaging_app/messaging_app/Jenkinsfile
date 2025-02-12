@@ -2,58 +2,50 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'your-dockerhub-username/messaging-app'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
+        PYTHON_HOME = '/usr/local/bin/python3'  // Adjust this if necessary
+        PIP_HOME = '/usr/local/bin/pip3'        // Adjust this if necessary
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/alx-backend-python.git'
+                // Pull code from GitHub repository
+                checkout scm
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'docker build -t $DOCKER_IMAGE:$BUILD_NUMBER ./messaging_app'
+                    // Install dependencies from requirements.txt
+                    sh 'pip3 install -r messaging_app/requirements.txt'
                 }
             }
         }
 
-        stage('Login to Docker Hub') {
+        stage('Run Tests') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "$DOCKER_CREDENTIALS_ID", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    }
+                    // Run tests using pytest
+                    sh 'pytest --maxfail=1 --disable-warnings -q'
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Generate Test Report') {
             steps {
                 script {
-                    sh 'docker push $DOCKER_IMAGE:$BUILD_NUMBER'
-                    sh 'docker tag $DOCKER_IMAGE:$BUILD_NUMBER $DOCKER_IMAGE:latest'
-                    sh 'docker push $DOCKER_IMAGE:latest'
+                    // Generate the test report after running pytest
+                    sh 'pytest --maxfail=1 --disable-warnings -q --junitxml=test_report.xml'
                 }
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                sh 'docker rmi $DOCKER_IMAGE:$BUILD_NUMBER'
             }
         }
     }
 
     post {
-        success {
-            echo 'Docker image successfully built and pushed!'
-        }
-        failure {
-            echo 'Build failed! Check logs for errors.'
+        always {
+            // Archive test results for future reference
+            junit '**/test_report.xml'
         }
     }
 }
